@@ -14,6 +14,14 @@ interface Data {
   data: Balance;
 }
 
+function formatRp(value: number): string {
+  const formatter = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+  });
+  return formatter.format(value);
+}
+
 const fetchData = async (token: string): Promise<Data[]> => {
   const response = await axios.get<Data[]>('https://api.mayar.id/hl/v1/balance', {
     headers: {
@@ -46,19 +54,19 @@ export default function Command() {
           icon={{ source: "wallet.png" }}
           key='balance'
           title='Balance'
-          accessories={[{ text: loading? 'Loading...' : data?.data.balance.toString() }]}
+          accessories={[{ text: loading? 'Loading...' : formatRp(data?.data.balance) }]}
         />
         <List.Item
           icon={{ source: "active.png" }}
           key='balance-active'
           title='Balance Active'
-          accessories={[{ text: loading? 'Loading...' : data?.data.balanceActive.toString() }]}
+          accessories={[{ text: loading? 'Loading...' : formatRp(data?.data.balanceActive) }]}
         />
         <List.Item
           icon={{ source: "pending.png" }}
           key='balance-pending'
           title='Balance Pending'
-          accessories={[{ text: loading? 'Loading...' : data?.data.balancePending.toString() }]}
+          accessories={[{ text: loading? 'Loading...' : formatRp(data?.data.balancePending) }]}
         />
     </List>
   );
