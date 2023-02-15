@@ -29,12 +29,9 @@ export default function Command() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Typed preferences:", preferences);
-    console.log("APIKEY", preferences['required-password']);
     const token = preferences['required-password'];
     fetchData(token)
       .then((result) => {
-        console.log("HASIL", result);
         setData(result);
         setLoading(false);
       })
