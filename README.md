@@ -1,0 +1,3 @@
+# Mayar
+
+Mayar Raycast Extensions
