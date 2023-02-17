@@ -1,5 +1,5 @@
 import { MenuBarExtra, getPreferenceValues } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import axios from "axios";
 import moment from "moment";
 
@@ -41,7 +41,7 @@ const fetchData = async (token: string): Promise<Data[][]> => {
       },
     })
   ])
-  return [response1.data, response2.data.data];
+  return [response1.data, response2.data];
 };
 
 export default function Command() {
@@ -55,7 +55,7 @@ export default function Command() {
     fetchData(token)
       .then((result) => {
         setData(result[0]);
-        setDataTrx(result[1]);
+        setDataTrx(result[1]["data"]);
         setLoading(false);
       })
       .catch((error) => {
@@ -89,7 +89,7 @@ export default function Command() {
       />
       <MenuBarExtra.Item title="10 Most Recent Transactions" />
       {
-        (dataTrx || []).map(trx =>(
+        (dataTrx || []).map((trx: { id: Key | null | undefined; createdAt: number; credit: number; customer: { email: string; }; }) =>(
           <MenuBarExtra.Item
             key={trx.id}
             title={UnixTime(trx.createdAt) + " - " + formatRp(trx.credit) + " - " + trx?.customer?.email}
