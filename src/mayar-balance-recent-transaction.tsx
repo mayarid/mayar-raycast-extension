@@ -3,16 +3,10 @@ import { Key, useEffect, useState } from "react";
 import axios from "axios";
 import moment from "moment";
 
-interface Balance {
-  balanceActive: number;
-  balancePending: number;
-  balance: number;
-}
-
 interface Data {
   statusCode: number;
   messages: string;
-  data: Balance;
+  data: any;
 }
 
 function UnixTime( unixTime : number): string {
