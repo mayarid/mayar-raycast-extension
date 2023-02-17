@@ -1,6 +1,7 @@
 import { MenuBarExtra, getPreferenceValues } from "@raycast/api";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import moment from "moment";
 
 interface Balance {
   balanceActive: number;
@@ -12,6 +13,21 @@ interface Data {
   statusCode: number;
   messages: string;
   data: Balance;
+}
+
+interface DataTrx {
+  statusCode: number,
+  messages: string,
+  hasMore: boolean,
+  pageCount: number,
+  pageSize: number,
+  page: number,
+  data: object
+}
+
+function UnixTime( unixTime : number): string {
+  const formattedDate = moment(unixTime).format("D MMM HH:mm");
+  return formattedDate;
 }
 
 function formatRp(value: number): string {
@@ -31,9 +47,19 @@ const fetchData = async (token: string): Promise<Data[]> => {
   return response.data;
 };
 
+const fetchDataTrx = async (token: string): Promise<DataTrx[]> => {
+  const response = await axios.get<DataTrx[]>("https://api.mayar.id/hl/v1/transactions?pageSize=10&page=1", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
 export default function Command() {
   const preferences = getPreferenceValues();
   const [data, setData] = useState<any | null>(null);
+  const [dataTrx, setDataTrx] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   console.log("PREF:", preferences);
@@ -44,7 +70,17 @@ export default function Command() {
       .then((result) => {
         console.log("DATA:", result)
         setData(result);
-        setLoading(false);
+
+        fetchDataTrx(token)
+          .then((result) => {
+            console.log("DATATRX:", result)
+            setDataTrx(result["data"]);
+            setLoading(false);
+            console.log("DATATRX----DATA:", result["data"][0].customer.email)
+          })
+          .catch((error) => {
+            setLoading(false);
+          });
       })
       .catch((error) => {
         setLoading(false);
@@ -76,12 +112,17 @@ export default function Command() {
         }}
       />
       <MenuBarExtra.Item title="Recent Transactions" />
-      <MenuBarExtra.Item
-        title="Transaksi blabla..."
-        onAction={() => {
-          console.log("transaction clicked");
-        }}
-      />
+      {
+        (dataTrx || []).map(trx =>(
+          <MenuBarExtra.Item
+            key={trx.id}
+            title={UnixTime(trx.createdAt) + " - " + formatRp(trx.credit) + " - " + trx?.customer?.email}
+            onAction={() => {
+              console.log("transaction clicked");
+            }}
+          />
+        ))
+      }
     </MenuBarExtra>
   );
 }
