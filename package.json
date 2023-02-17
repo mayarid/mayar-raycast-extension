@@ -33,6 +33,7 @@
       "subtitle": "Mayar",
       "description": "See your Mayar balance and recent transactions at a glance",
       "mode": "menu-bar",
+      "interval": "5m",
       "preferences": [
         {
           "name": "required-password",
