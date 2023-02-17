@@ -15,16 +15,6 @@ interface Data {
   data: Balance;
 }
 
-interface DataTrx {
-  statusCode: number,
-  messages: string,
-  hasMore: boolean,
-  pageCount: number,
-  pageSize: number,
-  page: number,
-  data: object
-}
-
 function UnixTime( unixTime : number): string {
   const formattedDate = moment(unixTime).format("D MMM HH:mm");
   return formattedDate;
@@ -38,22 +28,20 @@ function formatRp(value: number): string {
   return formatter.format(value);
 }
 
-const fetchData = async (token: string): Promise<Data[]> => {
-  const response = await axios.get<Data[]>("https://api.mayar.id/hl/v1/balance", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
-};
-
-const fetchDataTrx = async (token: string): Promise<DataTrx[]> => {
-  const response = await axios.get<DataTrx[]>("https://api.mayar.id/hl/v1/transactions?pageSize=10&page=1", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+const fetchData = async (token: string): Promise<Data[][]> => {
+  const [response1, response2] = await axios.all([
+    axios.get<Data[]>("https://api.mayar.id/hl/v1/balance", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+    axios.get<Data[]>("https://api.mayar.id/hl/v1/transactions?pageSize=10&page=1", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  ])
+  return [response1.data, response2.data.data];
 };
 
 export default function Command() {
@@ -62,25 +50,13 @@ export default function Command() {
   const [dataTrx, setDataTrx] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log("PREF:", preferences);
-
   useEffect(() => {
     const token = preferences["required-password"];
     fetchData(token)
       .then((result) => {
-        console.log("DATA:", result)
-        setData(result);
-
-        fetchDataTrx(token)
-          .then((result) => {
-            console.log("DATATRX:", result)
-            setDataTrx(result["data"]);
-            setLoading(false);
-            console.log("DATATRX----DATA:", result["data"][0].customer.email)
-          })
-          .catch((error) => {
-            setLoading(false);
-          });
+        setData(result[0]);
+        setDataTrx(result[1]);
+        setLoading(false);
       })
       .catch((error) => {
         setLoading(false);
@@ -111,7 +87,7 @@ export default function Command() {
           console.log("balance pending clicked");
         }}
       />
-      <MenuBarExtra.Item title="Recent Transactions" />
+      <MenuBarExtra.Item title="10 Most Recent Transactions" />
       {
         (dataTrx || []).map(trx =>(
           <MenuBarExtra.Item
