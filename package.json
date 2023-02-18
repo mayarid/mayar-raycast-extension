@@ -50,6 +50,7 @@
     "@raycast/api": "1.38.1",
     "@raycast/utils": "1.0.3",
     "axios": "1.3.3",
+    "javascript-time-ago": "2.5.9",
     "moment": "2.29.4"
   },
   "devDependencies": {

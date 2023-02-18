@@ -1,17 +1,16 @@
 import { MenuBarExtra, getPreferenceValues } from "@raycast/api";
 import { Key, useEffect, useState } from "react";
 import axios from "axios";
-import moment from "moment";
+import TimeAgo from 'javascript-time-ago'
+import id from 'javascript-time-ago/locale/id'
+
+TimeAgo.addDefaultLocale(id)
+const timeAgo = new TimeAgo("id-ID")
 
 interface Data {
   statusCode: number;
   messages: string;
   data: any;
-}
-
-function UnixTime( unixTime : number): string {
-  const formattedDate = moment(unixTime).format("D MMM HH:mm");
-  return formattedDate;
 }
 
 function formatRp(value: number): string {
@@ -86,7 +85,7 @@ export default function Command() {
         (dataTrx || []).map((trx: { id: Key | null | undefined; createdAt: number; credit: number; customer: { email: string; }; }) =>(
           <MenuBarExtra.Item
             key={trx.id}
-            title={UnixTime(trx.createdAt) + " - " + formatRp(trx.credit) + " - " + trx?.customer?.email}
+            title={timeAgo.format(trx.createdAt) + " - " + formatRp(trx.credit) + " - " + trx?.customer?.email}
             onAction={() => {
               console.log("transaction clicked");
             }}
