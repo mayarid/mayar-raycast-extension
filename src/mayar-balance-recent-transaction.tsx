@@ -48,7 +48,7 @@ export default function Command() {
     fetchData(token)
       .then((result) => {
         setData(result[0]);
-        setDataTrx(result[1]["data"]);
+        setDataTrx(result[1]);
         setLoading(false);
       })
       .catch((error) => {
@@ -82,7 +82,7 @@ export default function Command() {
       />
       <MenuBarExtra.Item title="10 Most Recent Transactions" />
       {
-        (dataTrx || []).map((trx: { id: Key | null | undefined; createdAt: number; credit: number; customer: { email: string; }; }) =>(
+        (dataTrx?.data || []).map((trx: { id: Key | null | undefined; createdAt: number; credit: number; customer: { email: string; }; }) =>(
           <MenuBarExtra.Item
             key={trx.id}
             title={timeAgo.format(trx.createdAt) + " - " + formatRp(trx.credit) + " - " + trx?.customer?.email}
